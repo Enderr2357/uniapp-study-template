@@ -1,131 +1,287 @@
 <script setup lang="ts">
+import { codeToText } from '@/utils/element-china-area-data.mjs'
+
+import { getMemberProfileAPI, putMemberProfileAPI } from '../../api/login'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
-// 订单选项
-const orderTypes = [
-  { type: 1, text: '待付款', icon: 'icon-currency' },
-  { type: 2, text: '待发货', icon: 'icon-gift' },
-  { type: 3, text: '待收货', icon: 'icon-check' },
-  { type: 4, text: '待评价', icon: 'icon-comment' }
-]
-//获取会员信息
-const memberStore = useMemberStore()
+const profile = ref({} as ProfileDetail)
+
+const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
+  profile.value.gender = parseInt(ev.detail.value) as Gender
+}
+const onBirthdayChange: UniHelper.DatePickerOnChange = (ev) => {
+  profile.value.birthday = ev.detail.value
+}
+
+let fullLocationCode: [string, string, string] = ['', '', '']
+const onFullLocationChange: UniHelper.RegionPickerOnChange = (ev) => {
+  // 修改前端界面
+  fullLocation.value = ev.detail.value.join(' ')
+  // 提交后端更新
+  fullLocationCode = ev.detail.code!
+}
+
+const onSubmit = async () => {
+  const { nickname, gender, birthday, profession } = profile.value
+  const res = await putMemberProfileAPI({
+    nickname,
+    gender,
+    birthday,
+    profession,
+    provinceCode: fullLocationCode[0],
+    cityCode: fullLocationCode[1],
+    countyCode: fullLocationCode[2]
+  }) // 更新Store昵称
+  memberStore.profile!.nickname = res.result.nickname
+  uni.showToast({ icon: 'success', title: '保存成功' })
+  setTimeout(() => {
+    uni.navigateBack()
+  }, 400)
+}
+// 完整地区
+const fullLocation = ref<string>('')
+// 获取个人信息
+const getMemberProfileData = async () => {
+  const res = await getMemberProfileAPI()
+  profile.value = res.result
+  // codeToText[地区码] 匹配地区名称，但是 element-china-area-data 里的code去掉了末尾的0，所以去要使用正则表达式替换
+  fullLocation.value =
+    codeToText[profile.value.provinceCode?.replace(/0+$/, '')] +
+    ' ' +
+    codeToText[profile.value.cityCode?.replace(/0+$/, '')] +
+    ' ' +
+    codeToText[profile.value.countyCode?.replace(/0+$/, '')]
+
+  profile.value.fullLocation = fullLocation
+}
+const onAvatarChange = () => {
+  // 调用拍照
+  //选择图片
+  uni.chooseMedia({
+    // 文件个数
+    count: 1,
+    // 文件类型
+    mediaType: ['image'],
+    success: (res) => {
+      // 本地路径
+      const { tempFilePath } = res.tempFiles[0]
+      console.log(tempFilePath)
+      // 文件上传
+      uni.uploadFile({
+        url: '/user/profile/avatar',
+        name: 'file',
+        // 后端数据字段名
+        filePath: tempFilePath,
+        // 新头像
+        success: (res) => {
+          // 判断状态码是否上传成功
+          if (res.statusCode === 200) {
+            // 提取头像
+            const avatar = JSON.parse(res.data).result
+            // 当前⻚面更新头像
+            profile.value!.avatar = avatar
+            // 更新 Store 头像
+            memberStore.profile!.avatar = avatar
+            uni.showToast({ icon: 'success', title: '更新成功' })
+          } else {
+            uni.showToast({ icon: 'error', title: '出现错误' })
+          }
+        }
+      })
+    }
+  })
+}
+onLoad(() => {
+  getMemberProfileData()
+})
 </script>
-
 <template>
-  <scroll-view class="viewport" scroll-y enable-back-to-top>
-    <!-- 个人资料 -->
-    <view class="mt-20 relative" :style="{ paddingTop: safeAreaInsets!.top + 'px' }">
-      <!-- 情况1：已登录 -->
-      <view class="flex h-120 px-36 text-white" v-if="memberStore.profile">
-        <navigator url="/pagesMember/profile/profile" hover-class="none">
-          <image class="w-120 h-120 rounded-1" mode="aspectFill" :src="memberStore.profile?.avatar"></image>
-        </navigator>
-        <view class="flex flex-col justify-center leading-30 py-16 ml-20">
-          <view class="max-w-350 mb-16 text-30rpx truncate">
-            {{ memberStore.profile.nickname || memberStore.profile.account }}
-          </view>
-          <navigator class="flex text-20rpx" url="/pagesMember/profile/profile" hover-class="none">
-            <text class="update">更新头像昵称</text>
-          </navigator>
-        </view>
-      </view>
-      <!-- 情况2：未登录 -->
-      <view class="flex h-120 px-36 text-white" v-else>
-        <navigator url="/pages/login/login" hover-class="none">
-          <image
-            class="w-120 h-120 rounded-1"
-            style="filter: grayscale(100%)"
-            mode="aspectFill"
-            src="../../static/images/default-a.png"
-          ></image>
-        </navigator>
-        <view class="flex flex-col justify-center leading-30 py-16 ml-20">
-          <navigator url="/pages/login/login" hover-class="none" class="max-w-350 mb-16 text-30rpx truncate">
-            未登录
-          </navigator>
-          <view class="flex text-20rpx">
-            <text class="text-22rpx">点击登录账号</text>
-          </view>
-        </view>
-      </view>
-      <navigator
-        class="absolute bottom-0 right-40 text-white text-md"
-        url="/pagesMember/settings/settings"
-        hover-class="none"
-      >
-        设置
-      </navigator>
-    </view>
-    <!-- 我的订单 -->
-    <view
-      class="relative z-50 p-30 mt-50 mx-20 bg-white rounded-md"
-      style="box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6)"
-    >
-      <view class="h-40 text-[#1e1e1e] text-base">
-        我的订单
-        <navigator
-          class="float-right text-sm text-[#939393]"
-          url="/pagesOrder/list/list?type=0"
-          hover-class="none"
-        >
-          查看全部订单<text class="icon-right"></text>
-        </navigator>
-      </view>
-      <view class="w-full flex justify-between pt-40 px-20 pb-10">
-        <!-- 订单 -->
-        <navigator
-          v-for="item in orderTypes"
-          :key="item.type"
-          :class="item.icon"
-          :url="`/pagesOrder/list/list?type=${item.type}`"
-          class="navigator"
-          hover-class="none"
-        >
-          {{ item.text }}
-        </navigator>
-        <!-- 客服 -->
-        <button class="icon-handset navigator p-0 m-0 bg-transparent leading-[inherit]" open-type="contact"
-          >售后</button
-        >
+  <view class="viewport">
+    <!-- 导航栏 -->
+    <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
+      <navigator open-type="navigateBack" class="back icon-left" hover-class="none"> </navigator>
+      <view class="title">个人信息</view> </view
+    ><!-- 头像 -->
+    <view class="avatar">
+      <view class="avatar-content">
+        <image @tap="onAvatarChange" class="image" :src="profile?.avatar" mode="aspectFill" />
+        <text class="text">点击修改头像</text>
       </view>
     </view>
-    <!-- 猜你喜欢 -->
-    <view class="mt-20 bg-light-100"> </view>
-  </scroll-view>
+    <!-- 表单 -->
+    <view class="form">
+      <!-- 表单内容 -->
+      <view class="form-content">
+        <view class="form-item">
+          <text class="label">账号</text>
+          <text class="account">
+            {{ profile?.account }}
+          </text>
+        </view>
+        <view class="form-item">
+          <text class="label">昵称</text>
+          <input class="input" type="text" placeholder="请填写昵称" v-model="profile.nickname" />
+        </view>
+        <view class="form-item">
+          <text class="label">性别</text>
+          <radio-group @change="onGenderChange">
+            <label class="radio">
+              <radio value="0" color="#27ba9b" :checked="profile?.gender === 0" />男
+            </label>
+            <label class="radio">
+              <radio value="1" color="#27ba9b" :checked="profile?.gender === 1" />女
+            </label>
+          </radio-group>
+        </view>
+        <view class="form-item">
+          <text class="label">生日</text>
+          <picker
+            class="picker"
+            mode="date"
+            start="1900-01-01"
+            :end="new Date()"
+            :value="profile?.birthday"
+            @change="onBirthdayChange"
+          >
+            <view v-if="profile?.birthday"> {{ profile?.birthday }}</view>
+            <view class="placeholder" v-else>请选择日期</view>
+          </picker>
+        </view>
+        <view class="form-item"
+          ><text class="label">城市</text>
+          <picker
+            class="picker"
+            mode="region"
+            :value="fullLocation?.split('')"
+            @change="onFullLocationChange"
+          >
+            <view v-if="profile?.fullLocation">{{ fullLocation }}</view>
+            <view class="placeholder" v-else>请选择城市</view>
+          </picker>
+        </view>
+        <view class="form-item"
+          ><text class="label">职业</text>
+          <input class="input" type="text" placeholder="请填写职业" v-model="profile.profession" />
+        </view>
+      </view>
+      <!-- 提交按钮 -->
+      <button @tap="onSubmit" class="form-button">保存</button>
+    </view>
+  </view>
 </template>
-
-<style lang="scss" scoped>
+<style lang="scss">
 page {
-  height: 100%;
-  overflow: hidden;
-  background-color: #f7f7f8;
+  background-color: #f4f4f4;
 }
 
 .viewport {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/order_bg.png);
+  background-size: auto420rpx;
   background-repeat: no-repeat;
-  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/center_bg.png);
-  background-size: 100% auto;
 }
 
-/* 用户信息 */
+// 导航栏
+.navbar {
+  position: relative;
 
-.update {
-  padding: 3rpx 10rpx 1rpx;
-  color: rgba(255, 255, 255, 0.8);
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
-  margin-right: 10rpx;
-  border-radius: 30rpx;
+  .title {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .back {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    left: 0;
+    font-size: 20px;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
-.navigator {
+
+// 头像
+.avatar {
   text-align: center;
-  font-size: 24rpx;
-  color: #333;
-  &::before {
+  width: 100%;
+  height: 260rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .image {
+    width: 160rpx;
+    height: 160rpx;
+    border-radius: 50%;
+    background-color: #eee;
+  }
+
+  .text {
     display: block;
-    font-size: 60rpx;
-    color: #ff9545;
+    padding-top: 20rpx;
+    line-height: 1;
+    font-size: 26rpx;
+    color: #fff;
+  }
+}
+
+// 表单
+.form {
+  background-color: #f4f4f4;
+
+  &-content {
+    margin: 20rpx20rpx0;
+    padding: 020rpx;
+    border-radius: 10rpx;
+    background-color: #fff;
+  }
+
+  &-item {
+    display: flex;
+    height: 96rpx;
+    line-height: 46rpx;
+    padding: 25rpx10rpx;
+    background-color: #fff;
+    font-size: 28rpx;
+    border-bottom: 1rpxsolid#ddd;
+
+    &:last-child {
+      border: none;
+    }
+
+    .label {
+      width: 180rpx;
+      color: #333;
+    }
+
+    .account {
+      color: #666;
+    }
+
+    .input {
+      flex: 1;
+      display: block;
+      height: 46rpx;
+    }
+
+    .radio {
+      margin-right: 20rpx;
+    }
+
+    .picker {
+      flex: 1;
+    }
   }
 }
 </style>

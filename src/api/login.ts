@@ -23,3 +23,16 @@ export const postLoginWxMinSimpleAPI = (phoneNumber: string) => {
     }
   })
 }
+export const getMemberProfileAPI = () => {
+  return http<ProfileDetail>({
+    method: 'GET',
+    url: '/user/profile'
+  })
+}
+export const putMemberProfileAPI = (data: ProfileParams) => {
+  return http<ProfileDetail>({
+    method: 'PUT',
+    url: '/user/profile',
+    data
+  })
+}
