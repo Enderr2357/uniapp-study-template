@@ -22,3 +22,11 @@ export const getHomeHotAPI = () => {
     url: '/home/hot'
   })
 }
+/** * 猜你喜欢-小程序 */
+export const getHomeGoodsGuessLikeAPI = (data?: PageParams) => {
+  return http<PageResult<GuessItem>>({
+    method: 'POST',
+    url: '/goods/guessLike',
+    data
+  })
+}
