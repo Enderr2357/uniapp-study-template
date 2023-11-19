@@ -1,13 +1,26 @@
-<script setup lang="ts">
-//
-</script>
-
 <template>
-  <view class="index">index</view>
-  <div class="flex justify-center h-100 items-center">
-    <div class="w-10 h-10 bg-pink-500"></div>
-  </div>
-  <div class="test bg-yellow-200 h-100 w-730"></div>
+  <CustomNavbar></CustomNavbar>
+  <WSwiper :list="bannerList"></WSwiper>
+  <CategoryPanel :list="categoryList"></CategoryPanel>
 </template>
+<script setup lang="ts">
+import WSwiper from '@/components/wSwiper/wSwiper.vue'
+import CustomNavbar from '../../components/CustomNavbar.vue'
+import { getHomeBannerAPI, getHomeCategoryAPI } from '@/api/home.api'
+import CategoryPanel from '@/components/CategoryPanel.vue'
+const categoryList = ref<CategoryItem[]>([])
+const getHomeCategoryData = async () => {
+  const res = await getHomeCategoryAPI()
+  categoryList.value = res.result
+}
+const bannerList = ref<BannerItem[]>([])
+const getHomeBannerData = async () => {
+  const res = await getHomeBannerAPI()
+  bannerList.value = res.result
+}
 
-<style lang="scss"></style>
+onLoad(async () => {
+  await Promise.all([getHomeBannerData(), getHomeCategoryData()])
+})
+</script>
+<style lang="scss" scoped></style>
