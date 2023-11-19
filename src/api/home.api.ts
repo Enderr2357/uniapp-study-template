@@ -15,3 +15,10 @@ export const getHomeCategoryAPI = () => {
     url: '/category/index'
   })
 }
+/** * 首⻚-热⻔推荐-小程序 */
+export const getHomeHotAPI = () => {
+  return http<HotItem[]>({
+    method: 'GET',
+    url: '/home/hot'
+  })
+}

@@ -1,27 +1,19 @@
 <script setup lang="ts">
-//
+//定义props接收数据
+defineProps<{
+  list: HotItem[]
+}>()
 </script>
 <template>
   <!-- 推荐专区 -->
   <view class="panel hot">
-    <view class="item" v-for="item in 4" :key="item">
+    <view class="item" v-for="item in list" :key="item.id">
       <view class="title">
-        <text class="title-text">特惠推荐</text>
-        <text class="title-desc">精选全攻略</text>
+        <text class="title-text">{{ item.title }}</text>
+        <text class="title-desc">{{ item.alt }}</text>
       </view>
-      <navigator hover-class="none" url="/pages/hot/hot" class="cards">
-        <image
-          class="image"
-          mode="aspectFit"
-          src="https://img12.360buyimg.com/babel/s380x300_jfs/t1/190850/4/33545/27561/642256d8Fb6b9dcda/e040016eb75845f4.png"
-        >
-        </image>
-        <image
-          class="image"
-          mode="aspectFit"
-          src="https://img1.360buyimg.com/da/jfs/t1/120188/3/39222/94431/651272abF0b8c6b65/2566cee3f294b69e.jpg!q70.jpg"
-        >
-        </image>
+      <navigator hover-class="none" :url="`/pages/hot/hot?type=${item.id}&title=${item.title}`" class="cards">
+        <image class="image" mode="aspectFit" v-for="src in item.pictures" :key="src" :src="src"></image>
       </navigator>
     </view>
   </view>
