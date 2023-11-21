@@ -26,6 +26,12 @@
 				"navigationBarTextStyle": "white"
 			}
 		},
+    {
+			"path": "pages/goods/goods",
+			"style": {
+				"navigationBarTitleText": "商品"
+			}
+		},
 		{
 			"path": "pages/cart/cart",
 			"style": {
@@ -100,6 +106,18 @@
 					"path": "settings/settings",
 					"style": {
 						"navigationBarTitleText": "设置"
+					}
+				},
+        {
+					"path": "address/address",
+					"style": {
+						"navigationBarTitleText": "地址管理"
+					}
+				},
+        {
+					"path": "address/address-form",
+					"style": {
+						"navigationBarTitleText": "编辑地址"
 					}
 				},
 				{

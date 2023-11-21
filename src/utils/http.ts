@@ -1,7 +1,8 @@
 // src/utils/http.ts
 import { useMemberStore } from '@/stores'
 // 请求基地址
-const baseURL = import.meta.env.VITE_API_URL as string
+// const baseURL = import.meta.env.VITE_API_URL as string
+const baseURL = 'http://test.evancax.com:8088/shop-api'
 // 拦截器配置
 const httpInterceptor = {
   // 拦截前触发
