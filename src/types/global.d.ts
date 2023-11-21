@@ -46,66 +46,7 @@ type HotResult = {
   /** 子类选项 */
   subTypes: SubTypeItem[]
 }
-/** 热⻔推荐-子类选项 */
-type SubTypeItem = {
-  /** 子类id */
-  id: string
-  /** 子类标题 */
-  title: string
-  /** 子类对应的商品集合 */
-  goodsItems: PageResult<GoodsItem>
-}
-/** 一级分类项 */
-type CategoryTopItem = {
-  /** 二级分类集合[ 二级分类项 ] */
-  children: CategoryChildItem[]
-  /** 一级分类id */
-  id: string
-  /** 一级分类图片集[ 一级分类图片项 ] */
-  imageBanners: string[]
-  /** 一级分类名称 */
-  name: string
-  /** 一级分类图片 */
-  picture: string
-}
-/** 二级分类项 */
-type CategoryChildItem = {
-  /** 商品集合[ 商品项 ] */
-  goods: GoodsItem[]
-  /** 二级分类id */
-  id: string
-  /** 二级分类名称 */
-  name: string
-  /** 二级分类图片 */
-  picture: string
-}
-/** 商品信息 */
-type GoodsResult = {
-  /** 主键id */
-  id: string
-  /** 商品名称 */
-  name: string
-  /** 商品描述 */
-  description: string
-  /** 当前价格 */
-  price: number
-  /** 原价 */
-  oldPrice: number
-  /** 商品属性集合[ 属性信息 ] */
-  properties: DetailsPropertyItem[]
-  /** 商品详情图片集合[ 图片链接 ] */
-  productPictures: string[]
-  /** 主图图片集合[ 主图图片链接 ] */
-  mainPictures: string[]
-  /** 同类商品[ 商品信息 ] */
-  similarProducts: GoodsItem[]
-  /** sku集合[ sku信息 ] */
-  skus: SkuItem[]
-  /** 可选规格集合备注[ 可选规格信息 ] */
-  specs: SpecItem[]
-  /** 用户地址列表[ 地址信息 ] */
-  userAddresses: AddressItem[]
-}
+
 /** 属性信息 */
 type DetailsPropertyItem = {
   /** 属性名称 */
@@ -157,23 +98,4 @@ type SpecValueItem = {
   name: string
   /** 可选值图片链接 */
   picture: string
-}
-/** 地址信息 */
-type AddressItem = {
-  /** 收货人姓名 */
-  receiver: string
-  /** 联系方式 */
-  contact: string
-  /** 省份编码 */
-  provinceCode: string
-  /** 城市编码 */
-  cityCode: string
-  /** 区/县编码 */
-  countyCode: string
-  /** 详细地址 */
-  address: string
-  /** 默认地址，1为是，0为否 */
-  isDefault: number
-  /** 收货地址 id */
-  id: string
 }

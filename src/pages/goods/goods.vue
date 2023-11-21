@@ -5,7 +5,7 @@ import ServicePanel from './components/ServicePanel.vue'
 import { getGoodsByIdAPI } from '@/api/goods.api';
 import type { SkuPopupLocaldata } from '../../types/vk-data-goods-sku-popup'
 import type { SkuPopupInstance } from '../../types/vk-data-goods-sku-popup'
-
+import type { SkuPopupEvent } from '../../types/vk-data-goods-sku-popup'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 接收⻚面参数
 const query = defineProps<{ id: string }>()
@@ -52,6 +52,17 @@ const openSkuPopup = (val: SkuMode) => {
   // 修改按钮模式
   mode.value = val
 }
+// 加入购物⻋事件
+const onAddCart = async (ev: SkuPopupEvent) => {
+  await postMemberCartAPI({
+    attrsText: selectArrText.value,
+    count: ev.buy_num,
+    id: ev.goods_id
+  })
+  uni.showToast({ title: '添加成功' })
+  isShowSku.value = false
+}
+
 // 商品信息
 const localdata = ref({} as SkuPopupLocaldata)
 // ⻚面加载
@@ -90,8 +101,8 @@ const openPopup = (name: typeof popupName.value) => {
 </script>
 <template>
   <scroll-view scroll-y class="viewport">
-    <vk-data-goods-sku-popup v-model="isShowSku" :localdata="localdata" :mode="mode" add-cart-background-color="#FFA868"
-      buy-now-background-color="#27BA9B" ref="skuPopupRef"
+    <vk-data-goods-sku-popup v-model="isShowSku" @add-cart="onAddCart" :localdata="localdata" :mode="mode"
+      add-cart-background-color="#FFA868" buy-now-background-color="#27BA9B" ref="skuPopupRef"
       :actived-style="{ color: '#27BA9B', borderColor: '#27BA9B', backgroundColor: '#E9F8F5', }" />
     <!-- 弹窗测试 -->
     <button @tap="isShowSku = true">打开 SKU 弹窗</button>
