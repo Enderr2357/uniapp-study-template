@@ -484,6 +484,7 @@ export default {
   methods: {
     // 初始化
     init(notAutoClick) {
+      console.log("初始化")
       let that = this;
       // 清空之前的数据
       that.selectArr = [];
@@ -734,11 +735,16 @@ export default {
       // console.time('计算有多小种可选路径需要的时间是');
       let { stockName } = that;
       let skuListName = that.skuListName;
+      console.log(skuListName)
       // 去除库存小于等于0的商品sku
       let originalSkuList = that.goodsInfo[skuListName];
+      console.log("进入checkItem")
+      console.log(that.goodsInfo)
+      console.log(that.goodsInfo[skuListName])
       let skuList = [];
       let stockNum = 0;
       originalSkuList.map((skuItem, index) => {
+        console.log(skuItem)
         if (skuItem[stockName] > 0) {
           skuList.push(skuItem);
           stockNum += skuItem[stockName];

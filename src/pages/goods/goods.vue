@@ -3,6 +3,7 @@
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { getGoodsByIdAPI } from '@/api/goods.api';
+import { postMemberCartAPI } from '@/api/cart.api'
 import type { SkuPopupLocaldata } from '../../types/vk-data-goods-sku-popup'
 import type { SkuPopupInstance } from '../../types/vk-data-goods-sku-popup'
 import type { SkuPopupEvent } from '../../types/vk-data-goods-sku-popup'
@@ -14,6 +15,7 @@ const goods = ref<GoodsResult>()
 const getGoodsByIdData = async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
+  console.log(res.result.skus)
   //sku组件所需格式
   localdata.value = {
     _id: res.result.id,

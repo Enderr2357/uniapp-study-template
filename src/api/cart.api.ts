@@ -29,7 +29,7 @@ export type CartItem = {
   /** 商品 ID */
   id: string
   /**商品在数据库中Id */
-  goodsId: string
+  skuId: string
   /** 商品名称 */
   name: string
   /** 图片 */
@@ -53,11 +53,10 @@ export type CartItem = {
  * 删除/清空购物车单品
  * @param data 请求体参数 ids SKUID 集合
  */
-export const deleteMemberCartAPI = (data: { ids: string[] }) => {
+export const deleteMemberCartAPI = (id: String) => {
   return http({
     method: 'DELETE',
-    url: '/cart/remove',
-    data
+    url: `/cart/remove?id=${id}`
   })
 }
 /**
@@ -65,10 +64,20 @@ export const deleteMemberCartAPI = (data: { ids: string[] }) => {
  * @param skuId SKUID
  * @param data selected 选中状态 count 商品数量
  */
-export const putMemberCartBySkuIdAPI = (data: { id: string; elected?: boolean; count?: number }) => {
+export const putMemberCartBySkuIdAPI = (data: { id: String; selected?: boolean; count?: number }) => {
   return http({
     method: 'PUT',
     url: `/cart/edit`,
-    data
+    data: { ...data }
+  })
+}
+/**
+ * 购物车全选/取消全选
+ * @param data selected 是否选中
+ */
+export const putMemberCartSelectedAPI = (data: { selected: boolean }) => {
+  return http({
+    method: 'PUT',
+    url: `/cart/selected?selected=${data.selected}`
   })
 }

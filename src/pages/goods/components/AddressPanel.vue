@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import { getMemberAddressAPI } from '@/api/address.api'
 const emit = defineEmits<{
   (event: 'close'): void
 }>()
+const addressList = ref<AddressItem[]>([])
+const getAddressByIdData = async () => {
+  const res = await getMemberAddressAPI()
+  addressList.value = res.result
+  console.log(addressList)
+}
+onMounted(() => {
+  console.log('onLoad')
+  getAddressByIdData()
+})
 </script>
 
 <template>
@@ -12,20 +23,11 @@ const emit = defineEmits<{
     <view class="title">配送至</view>
     <!-- 内容 -->
     <view class="content">
-      <view class="item">
-        <view class="user">李明 13824686868</view>
-        <view class="address">北京市顺义区后沙峪地区安平北街6号院</view>
-        <text class="icon icon-checked"></text>
-      </view>
-      <view class="item">
-        <view class="user">王东 13824686868</view>
-        <view class="address">北京市顺义区后沙峪地区安平北街6号院</view>
-        <text class="icon icon-ring"></text>
-      </view>
-      <view class="item">
-        <view class="user">张三 13824686868</view>
-        <view class="address">北京市朝阳区孙河安平北街6号院</view>
-        <text class="icon icon-ring"></text>
+      <view class="item" v-for="item in addressList" :key="item">
+        <view class="user">{{ item.receiver }} {{ item.contact }}</view>
+        <view class="address">{{ item.address }}</view>
+        <text v-if="item.isDefault" class="icon icon-checked"></text>
+        <text v-else class="icon icon-unchecked"></text>
       </view>
     </view>
     <view class="footer">
