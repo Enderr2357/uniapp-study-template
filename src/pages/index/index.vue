@@ -27,6 +27,7 @@ import CategoryPanel from '@/components/CategoryPanel.vue'
 import HotPanel from '@/components/HotPanel.vue'
 import wGuess from '@/components/wGuess.vue'
 import type { wGuessInstance } from '@/types/component'
+import type { CategoryItem, HotItem } from '@/types/params'
 //获取猜你喜欢组件实例
 const guessRef = ref<wGuessInstance>()
 
@@ -39,7 +40,6 @@ const hotItemList = ref<HotItem[]>([])
 const getHotItemData = async () => {
   const res = await getHomeHotAPI()
   hotItemList.value = res.result
-  console.log(hotItemList)
 }
 
 //种类

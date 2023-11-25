@@ -8,14 +8,20 @@ import type { SkuPopupLocaldata } from '../../types/vk-data-goods-sku-popup'
 import type { SkuPopupInstance } from '../../types/vk-data-goods-sku-popup'
 import type { SkuPopupEvent } from '../../types/vk-data-goods-sku-popup'
 const { safeAreaInsets } = uni.getSystemInfoSync()
+// 立即购买
+const onBuyNow = (ev: SkuPopupEvent) => {
+  uni.navigateTo({
+    url: `/pagesOrder/create/create?id=${ev.goods_id}&count=${ev.buy_num}&attrsText=${selectArrText.value}`
+  })
+}
 // 接收⻚面参数
 const query = defineProps<{ id: string }>()
 // 获取商品详情信息
 const goods = ref<GoodsResult>()
+//获取商品同类推荐信息
 const getGoodsByIdData = async () => {
   const res = await getGoodsByIdAPI(query.id)
   goods.value = res.result
-  console.log(res.result.skus)
   //sku组件所需格式
   localdata.value = {
     _id: res.result.id,
@@ -104,7 +110,7 @@ const openPopup = (name: typeof popupName.value) => {
 <template>
   <scroll-view scroll-y class="viewport">
     <vk-data-goods-sku-popup v-model="isShowSku" @add-cart="onAddCart" :localdata="localdata" :mode="mode"
-      add-cart-background-color="#FFA868" buy-now-background-color="#27BA9B" ref="skuPopupRef"
+      @buy-now="onBuyNow" add-cart-background-color="#FFA868" buy-now-background-color="#27BA9B" ref="skuPopupRef"
       :actived-style="{ color: '#27BA9B', borderColor: '#27BA9B', backgroundColor: '#E9F8F5', }" />
     <!-- 弹窗测试 -->
     <button @tap="isShowSku = true">打开 SKU 弹窗</button>
@@ -185,13 +191,14 @@ const openPopup = (name: typeof popupName.value) => {
         <text>同类推荐</text>
       </view>
       <view class="content">
-        <navigator v-for="item in 4" :key="item" class="goods" hover-class="none" :url="`/pages/goods/goods?id=`">
-          <image class="image" mode="aspectFill" src="//yanxuan-item.nosdn.127.net/e0cea368f41da1587b3b7fc523f169d7.png">
+        <navigator v-for="item in goods?.similarProducts" :key="item" class="goods" hover-class="none"
+          :url="`/pages/goods/goods?id=`">
+          <image class="image" mode="aspectFill" :src="item.picture">
           </image>
-          <view class="name ellipsis">简约山形纹全棉提花毛巾</view>
+          <view class="name ellipsis">{{ item.name }}</view>
           <view class="price">
             <text class="symbol">¥</text>
-            <text class="number">18.50</text>
+            <text class="number">{{ item.price }}</text>
           </view>
         </navigator>
       </view>

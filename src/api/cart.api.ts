@@ -29,7 +29,7 @@ export type CartItem = {
   /** 商品 ID */
   id: string
   /**商品在数据库中Id */
-  skuId: string
+  goodsId: string
   /** 商品名称 */
   name: string
   /** 图片 */

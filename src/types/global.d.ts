@@ -99,3 +99,6 @@ type SpecValueItem = {
   /** 可选值图片链接 */
   picture: string
 }
+// 基于小程序的 Page 实例类型扩展 uni-app 的 Page
+type PageInstance = Page.PageInstance & WechatMiniprogram.Page.InstanceMethods<any>
+const pageInstance = pages.at(-1) as PageInstance
