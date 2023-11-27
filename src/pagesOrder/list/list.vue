@@ -1,6 +1,7 @@
 <script setup lang="ts">
 //导入列表组件
 import OrderList from './components/OrderList.vue'
+import { putMemberOrderReceiptByIdAPI } from '@/api/order.api'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // tabs 数据
@@ -11,6 +12,7 @@ const orderTabs = ref([
   { orderState: 3, title: '待收货' },
   { orderState: 4, title: '待评价' }
 ])
+
 //获取页面参数
 const query = defineProps<{
   type: string
@@ -55,7 +57,7 @@ const activeIndex = ref(orderTabs.value.findIndex((v) => v.orderState === Number
               <image
                 mode="aspectFit"
                 src="//yanxuan-item.nosdn.127.net/c07edde1047fa1bd0b795
-  bed136c2bb2.jpg"
+        bed136c2bb2.jpg"
               ></image>
             </view>
             <view class="meta">
